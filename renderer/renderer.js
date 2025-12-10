@@ -5,7 +5,6 @@ let audioChunks = [];
 
 const recordBtn = document.getElementById("recordBtn");
 const statusText = document.getElementById("status");
-const resultBox = document.getElementById("result");
 
 recordBtn.addEventListener("click", async () => {
 
@@ -52,7 +51,7 @@ recordBtn.addEventListener("click", async () => {
             console.log("[Renderer] API returned:", apiResult);
 
             if (!apiResult.success) {
-                resultBox.innerText = JSON.stringify(apiResult.error, null, 2);
+                console.log(apiResult.error);
                 statusText.innerText = "Error de predicción.";
                 return;
             }
@@ -60,14 +59,13 @@ recordBtn.addEventListener("click", async () => {
 			// STORE ORDER IN MEMORY
 		    window.tableOrders[window.currentTable].push(apiResult.data.prediction);
 
-		    // RENDER NICELY
-		    resultBox.innerHTML = UI.renderPrediction(apiResult.data.prediction);
+			// RE-RENDER past orders with highlight on last item
+			const orders = window.tableOrders[window.currentTable];
+			document.getElementById("past-orders").innerHTML = orders
+			    .map((o, i) => UI.renderOrder(o, i === orders.length - 1)) // highlight last
+			    .join("");
 
-		    // UPDATE PAST ORDERS LIST
-		    document.getElementById("past-orders").innerHTML =
-		        window.tableOrders[window.currentTable].map(UI.renderOrder).join("");
-
-            statusText.innerText = "Completado!";
+            statusText.innerText = "";
         };
 
         mediaRecorder.start();

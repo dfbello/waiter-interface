@@ -26,24 +26,32 @@
             font-weight: 600;
         }
 
+		#view-orders h3 {
+		    font-size: 18px;
+		    font-weight: 500;
+		    margin-top: 12px;
+		    margin-bottom: 6px;
+		}
+
         /* Prediction Card */
         .order-item-card {
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
         }
 
         .order-qty {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 700;
-            margin-right: 10px;
+            margin-right: 8px;
+			margin-top: 2px;
             color: var(--bs-primary) !important;
         }
 
         .order-product {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 600;
         }
 
@@ -53,6 +61,27 @@
             margin-top: 3px;
         }
 
+		.order-item-new {
+		    background: #1e2a40 !important;  /* subtle bluish highlight */
+		    border-color: #3c6eff !important;
+		}
+
+		.order-new-wrapper {
+		    background: #1e2a40 !important;
+		    border: 1px solid #3c6eff !important;
+		    padding: 12px;
+		    border-radius: 12px;
+		    box-shadow: 0 0 12px rgba(60,110,255,0.3);
+		    transition: background 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.order-item-new {
+		    background: #1e2a40 !important;  /* slightly different tone */
+		    border-color: #3c6eff !important;
+		    box-shadow: 0 0 12px rgba(60,110,255,0.3);
+		    transition: background 0.3s ease, box-shadow 0.3s ease;
+		}
+
         /* Scroll area */
         #result {
             max-height: 260px;
@@ -61,7 +90,7 @@
         }
 
         #past-orders {
-            max-height: 200px;
+            max-height: 60vh;
             overflow-y: auto;
         }
 
@@ -113,6 +142,10 @@
 		    padding: 10px;
 		}
 
+		.app-container h2 {
+		    margin-bottom: 10px;
+		}
+
 		/* For smaller screens, allow full width */
 		@media (max-width: 900px) {
 		    .app-container {
@@ -137,9 +170,13 @@
 	    <!-- TABLE DETAIL VIEW -->
 	    <div id="view-orders" style="display:none;" class="container">
 
-	        <button class="btn btn-outline-light mb-3" onclick="UI.showTables()">< Atrás</button>
+			<div class="d-flex align-items-center mb-3" style="gap:12px;">
+			    <button class="btn btn-outline-light" onclick="UI.showTables()">
+			        < Atrás
+			    </button>
 
-	        <h2 id="table-title" class="mb-3"></h2>
+			    <h2 id="table-title" class="m-0 flex-grow-1"></h2>
+			</div>
 
 	        <h3>Órdenes previas</h3>
 	        <div id="past-orders" class="mt-2 p-3 bg-dark rounded scroll-hide"></div>
@@ -148,8 +185,6 @@
 	        <button id="recordBtn" class="btn btn-primary w-100 py-3 fs-4"> Grabar</button>
 	        <div id="status" class="text-center mt-2"></div>
 
-	        <h3 class="mt-4">Validación de última orden</h3>
-	        <div id="result" class="bg-dark p-3 rounded scroll-hide"></div>
 	    </div>
 	
 	</div>
