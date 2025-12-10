@@ -3,40 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <title>Smart Order</title>
+
+    <!-- BOOTSTRAP -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+
+    <!-- Modern Typography -->
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        #result { white-space: pre-wrap; text-align: left; border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 250px; overflow-y: auto; }
-        button { padding: 10px 20px; font-size: 18px; margin-top: 20px; }
-        #status { margin-top: 10px; color: #444; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: "SF Pro Display", Inter, -apple-system, BlinkMacSystemFont,
+                         "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #111;
+            color: #eee;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+        }
+
+        /* Prediction Card */
+        .order-item-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .order-qty {
+            font-size: 26px;
+            font-weight: 700;
+            margin-right: 10px;
+            color: var(--bs-primary) !important;
+        }
+
+        .order-product {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .order-mods {
+            font-size: 14px;
+            color: #bbbbbb;
+            margin-top: 3px;
+        }
+
+        /* Scroll area */
+        #result {
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        #past-orders {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Table buttons */
+        .table-btn {
+            width: 90px;
+            height: 90px;
+            font-size: 28px;
+            font-weight: 600;
+            border-radius: 14px;
+        }
+
+		/* --- Minimalistic Dark Scrollbar (WebKit & Chromium: Electron) --- */
+		::-webkit-scrollbar {
+		    width: 6px;
+		}
+
+		::-webkit-scrollbar-track {
+		    background: transparent;
+		}
+
+		::-webkit-scrollbar-thumb {
+		    background: rgba(255, 255, 255, 0.15);
+		    border-radius: 10px;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+		    background: rgba(255, 255, 255, 0.25);
+		}
+
+		/* Optional: hide scrollbar unless scrolling */
+		.scroll-hide::-webkit-scrollbar {
+		    width: 0px;
+		}
+		.scroll-hide:hover::-webkit-scrollbar {
+		    width: 6px;
+		}
+
+		/* Firefox support */
+		* {
+		    scrollbar-width: thin;
+		    scrollbar-color: rgba(255,255,255,0.15) transparent;
+		}
+
+		/* Constrain the whole UI to 40% of screen width */
+		.app-container {
+		    max-width: 40vw;       /* never exceed 40% of screen */
+		    margin: 0 auto;        /* center horizontally */
+		    padding: 10px;
+		}
+
+		/* For smaller screens, allow full width */
+		@media (max-width: 900px) {
+		    .app-container {
+		        max-width: 90vw;
+		    }
+		}
+
     </style>
 </head>
+
 <body>
-    <h1>Smart Order</h1>
+    <h1 class="text-center mb-4">Smart Order</h1>
+	
+	<div class="app-container">
+	    <!-- TABLE SELECT VIEW -->
+	    <div id="view-tables" class="container text-center">
+	        <h2 class="mb-3">Seleccione una Mesa</h2>
 
-    <!-- TABLE SELECT VIEW -->
-    <div id="view-tables">
-        <h2>Seleccione una Mesa</h2>
-        <div id="table-list" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-    </div>
+	        <div id="table-list" class="d-flex flex-wrap justify-content-center gap-3"></div>
+	    </div>
 
-    <!-- TABLE DETAIL + RECORDING VIEW -->
-    <div id="view-orders" style="display:none;">
-        <button onclick="UI.showTables()">Atrás</button>
-        <h2 id="table-title"></h2>
+	    <!-- TABLE DETAIL VIEW -->
+	    <div id="view-orders" style="display:none;" class="container">
 
-        <h3>Órdenes previas</h3>
-        <div id="past-orders" style="border:1px solid #ccc; padding:10px; min-height:150px;"></div>
+	        <button class="btn btn-outline-light mb-3" onclick="UI.showTables()">< Atrás</button>
 
-        <h3>Grabar una nueva orden</h3>
-        <button id="recordBtn">Grabar</button>
-        <div id="status"></div>
+	        <h2 id="table-title" class="mb-3"></h2>
 
-        <h3>Validación de última orden</h3>
-        <div id="result"></div>
-    </div>
+	        <h3>Órdenes previas</h3>
+	        <div id="past-orders" class="mt-2 p-3 bg-dark rounded scroll-hide"></div>
 
+	        <h3 class="mt-4">Grabar nueva orden</h3>
+	        <button id="recordBtn" class="btn btn-primary w-100 py-3 fs-4"> Grabar</button>
+	        <div id="status" class="text-center mt-2"></div>
+
+	        <h3 class="mt-4">Validación de última orden</h3>
+	        <div id="result" class="bg-dark p-3 rounded scroll-hide"></div>
+	    </div>
+	
+	</div>
     <script src="./ui.js"></script>
     <script src="./renderer.js"></script>
+
 </body>
 </html>
 

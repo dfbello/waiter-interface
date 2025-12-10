@@ -29,7 +29,7 @@ recordBtn.addEventListener("click", async () => {
         mediaRecorder.onstop = async () => {
             console.log("[Renderer] onstop fired");
 
-            statusText.innerText = "Saving audio...";
+            statusText.innerText = "Procesando...";
 
             const blob = new Blob(audioChunks, { type: "audio/webm" });
             const arrayBuffer = await blob.arrayBuffer();
@@ -46,14 +46,14 @@ recordBtn.addEventListener("click", async () => {
                 return;
             }
 
-            statusText.innerText = "Sending to API...";
+            statusText.innerText = "Esperando respuesta...";
 
             const apiResult = await window.electronAPI.sendToAPI(saveResult.filename);
             console.log("[Renderer] API returned:", apiResult);
 
             if (!apiResult.success) {
                 resultBox.innerText = JSON.stringify(apiResult.error, null, 2);
-                statusText.innerText = "Prediction failed.";
+                statusText.innerText = "Error de predicción.";
                 return;
             }
 
@@ -67,18 +67,18 @@ recordBtn.addEventListener("click", async () => {
 		    document.getElementById("past-orders").innerHTML =
 		        window.tableOrders[window.currentTable].map(UI.renderOrder).join("");
 
-            statusText.innerText = "Done!";
+            statusText.innerText = "Completado!";
         };
 
         mediaRecorder.start();
-        recordBtn.innerText = "STOP";
-        statusText.innerText = "Recording... Press STOP to end.";
+        recordBtn.innerText = "Detener";
+        statusText.innerText = "Grabando...";
         console.log("[Renderer] Recording started");
 
     } else {
         console.log("[Renderer] Stopping recording...");
         mediaRecorder.stop();
-        recordBtn.innerText = "RECORD";
+        recordBtn.innerText = "Grabar";
     }
 });
 
