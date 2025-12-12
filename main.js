@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
-const { AUDIO_DIR, API_URL } = require("./config");
+const { AUDIO_DIR, API_URL, ORDER_DIR } = require("./config");
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegPath = require("ffmpeg-static");
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -81,3 +81,67 @@ ipcMain.handle("send-to-api", async (_, filename) => {
 	}
 });
 
+// Save order as .md file
+ipcMain.handle("save-order-md", async (_, payload) => {
+    try {
+        const { table, prediction } = payload;
+
+        if (!fs.existsSync(ORDER_DIR)) {
+            fs.mkdirSync(ORDER_DIR, { recursive: true });
+        }
+
+        const id = uuidv4();
+        const filePath = path.join(ORDER_DIR, `order_${table}_${id}.md`);
+
+        // --- Build timestamp ---
+        const now = new Date();
+
+        const options = {
+            weekday: "long",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        };
+
+        const formattedDate = now
+            .toLocaleString("es-CO", options)
+            .replace(".", "")                // remove extra dots
+            .replace(/(\b[a-z])/g, c => c.toUpperCase());  // capitalize first letters
+
+        // Example output:
+        // "Viernes, 12 Dic 2025, 11:27 a. m."
+
+        const friendlyDate = formattedDate.replace(",", ""); 
+        // "Viernes 12 Dic 2025 11:27 a. m."
+
+        // --- Convert prediction to Markdown ---
+        const itemsMd = prediction.items.map(item => {
+            const header = `### ${item.cantidad} ${item.producto}`;
+            const mods = item.modificadores?.length
+                ? `> ${item.modificadores.join(", ")}`
+                : "";
+            return `${header}\n${mods}`;
+        }).join("\n\n");
+
+        // --- Final MD file ---
+        const md = `
+## Mesa ${table}
+** *${friendlyDate}* **
+
+${itemsMd}
+        `.trim();
+
+        fs.writeFileSync(filePath, md, "utf8");
+
+        console.log(`[Main] Markdown order saved: ${filePath}`);
+
+        return { success: true, path: filePath };
+
+    } catch (error) {
+        console.error("[Main] Error writing MD order:", error);
+        return { success: false, error: error.message };
+    }
+});

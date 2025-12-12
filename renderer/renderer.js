@@ -59,6 +59,14 @@ recordBtn.addEventListener("click", async () => {
 			// STORE ORDER IN MEMORY
 		    window.tableOrders[window.currentTable].push(apiResult.data.prediction);
 
+			// Save Markdown version to filesystem
+		    await window.electronAPI.saveOrderMD(
+		        window.currentTable,
+		        apiResult.data.prediction
+		    );
+
+			console.log("[Renderer] Markdown order saved.");
+
 			// RE-RENDER past orders with highlight on last item
 			const orders = window.tableOrders[window.currentTable];
 			document.getElementById("past-orders").innerHTML = orders
