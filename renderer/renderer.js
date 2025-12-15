@@ -1,90 +1,96 @@
-console.log("[Renderer.js] LOADED!");
+console.log("[Renderer] loaded");
 
 let mediaRecorder;
 let audioChunks = [];
 
+window.currentTable = null;
+window.currentDraftOrder = null;
+
+// PERSISTED CONFIRMED ORDERS
+window.tableOrders = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [] };
+
 const recordBtn = document.getElementById("recordBtn");
 const statusText = document.getElementById("status");
 
+/* ---------------- RECORDING ---------------- */
+
 recordBtn.addEventListener("click", async () => {
+	if (!mediaRecorder || mediaRecorder.state === "inactive") {
+		audioChunks = [];
 
-    if (!mediaRecorder || mediaRecorder.state === "inactive") {
-        console.log("[Renderer] Starting recording\u2026");
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-        audioChunks = [];
+		mediaRecorder = new MediaRecorder(stream, {
+			mimeType: "audio/webm;codecs=opus"
+		});
 
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log("[Renderer] Microphone OK:", stream);
+		mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
 
-        mediaRecorder = new MediaRecorder(stream, {
-            mimeType: "audio/webm;codecs=opus"
-        });
+		mediaRecorder.onstop = async () => {
+			statusText.innerText = "Procesando...";
 
-        mediaRecorder.ondataavailable = (e) => {
-            console.log("[Renderer] ondataavailable:", e.data.size, "bytes");
-            audioChunks.push(e.data);
-        };
+			const blob = new Blob(audioChunks);
+			const buffer = new Uint8Array(await blob.arrayBuffer());
 
-        mediaRecorder.onstop = async () => {
-            console.log("[Renderer] onstop fired");
+			const saved = await window.electronAPI.saveAudio(buffer);
+			if (!saved.success) return;
 
-            statusText.innerText = "Procesando...";
+			const api = await window.electronAPI.sendToAPI(saved.filename);
+			if (!api.success) return;
 
-            const blob = new Blob(audioChunks, { type: "audio/webm" });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = new Uint8Array(arrayBuffer);
+			// CREATE DRAFT (NOT SAVED)
+			window.currentDraftOrder = {
+				table: window.currentTable,
+				prediction: api.data.prediction
+			};
 
-            console.log("[Renderer] Sending buffer to main, size =", buffer.length);
+			UI.renderDraft(window.currentDraftOrder);
+			statusText.innerText = "";
+		};
 
-            const saveResult = await window.electronAPI.saveAudio(buffer);
-            console.log("[Renderer] saveAudio returned:", saveResult);
+		mediaRecorder.start();
+		recordBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
+		statusText.innerText = "Grabando...";
 
-            if (!saveResult.success) {
-                statusText.innerText = "Error saving audio.";
-                console.error("[Renderer] ERROR:", saveResult.error);
-                return;
-            }
+	} else {
+		mediaRecorder.stop();
+		recordBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+	}
+});
 
-            statusText.innerText = "Esperando respuesta...";
+/* ---------------- DRAFT ACTIONS ---------------- */
 
-            const apiResult = await window.electronAPI.sendToAPI(saveResult.filename);
-            console.log("[Renderer] API returned:", apiResult);
+window.removeDraftItem = (index) => {
+	window.currentDraftOrder.prediction.items.splice(index, 1);
+	UI.renderDraft(window.currentDraftOrder);
+};
 
-            if (!apiResult.success) {
-                console.log(apiResult.error);
-                statusText.innerText = "Error de predicción.";
-                return;
-            }
+window.confirmDraftOrder = async () => {
+	const draft = window.currentDraftOrder;
+	if (!draft || !draft.prediction.items.length) return;
 
-			// STORE ORDER IN MEMORY
-		    window.tableOrders[window.currentTable].push(apiResult.data.prediction);
+	// SAVE IN MEMORY
+	window.tableOrders[draft.table].push(draft.prediction);
 
-			// Save Markdown version to filesystem
-		    await window.electronAPI.saveOrderMD(
-		        window.currentTable,
-		        apiResult.data.prediction
-		    );
+	// SAVE TO FILESYSTEM
+	await window.electronAPI.saveOrderMD(draft.table, draft.prediction);
 
-			console.log("[Renderer] Markdown order saved.");
+	window.currentDraftOrder = null;
+	UI.renderPastOrders(draft.table);
+};
 
-			// RE-RENDER past orders with highlight on last item
-			const orders = window.tableOrders[window.currentTable];
-			document.getElementById("past-orders").innerHTML = orders
-			    .map((o, i) => UI.renderOrder(o, i === orders.length - 1)) // highlight last
-			    .join("");
+/* ---------------- TABLE NAV ---------------- */
 
-            statusText.innerText = "";
-        };
+window.showTables = () => UI.showTables();
 
-        mediaRecorder.start();
-        recordBtn.innerText = "Detener";
-        statusText.innerText = "Grabando...";
-        console.log("[Renderer] Recording started");
+window.showOrders = (table) => {
+	window.currentTable = table;
+	UI.showOrders(table);
+};
 
-    } else {
-        console.log("[Renderer] Stopping recording...");
-        mediaRecorder.stop();
-        recordBtn.innerText = "Grabar";
-    }
+/* ---------------- INIT ---------------- */
+
+window.addEventListener("DOMContentLoaded", () => {
+	UI.initTables();
 });
 

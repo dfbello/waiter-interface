@@ -4,97 +4,39 @@
     <meta charset="UTF-8">
     <title>Smart Order</title>
 
-    <!-- BOOTSTRAP -->
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
     />
 
-    <!-- Modern Typography -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    <!-- Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+        rel="stylesheet"
+    />
 
+    <style>
         body {
-            font-family: "SF Pro Display", Inter, -apple-system, BlinkMacSystemFont,
-                         "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #111;
             color: #eee;
+            font-family: Inter, system-ui, sans-serif;
+            margin: 0;
             padding: 20px;
+            overflow: hidden;
         }
 
-        h1, h2, h3 {
-            font-weight: 600;
+        /* ================= WIDTH CONSTRAINT ================= */
+
+        .content-column {
+            max-width: 480px;     /* 🔑 control horizontal stretch */
+            margin: 0 auto;
+            height: 100%;
+            position: relative;
         }
 
-		#view-orders h3 {
-		    font-size: 18px;
-		    font-weight: 500;
-		    margin-top: 12px;
-		    margin-bottom: 6px;
-		}
+        /* ================= TABLES VIEW (UNCHANGED) ================= */
 
-        /* Prediction Card */
-        .order-item-card {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-        }
-
-        .order-qty {
-            font-size: 22px;
-            font-weight: 700;
-            margin-right: 8px;
-			margin-top: 2px;
-            color: var(--bs-primary) !important;
-        }
-
-        .order-product {
-            font-size: 17px;
-            font-weight: 600;
-        }
-
-        .order-mods {
-            font-size: 14px;
-            color: #bbbbbb;
-            margin-top: 3px;
-        }
-
-		.order-item-new {
-		    background: #1e2a40 !important;  /* subtle bluish highlight */
-		    border-color: #3c6eff !important;
-		}
-
-		.order-new-wrapper {
-		    background: #1e2a40 !important;
-		    border: 1px solid #3c6eff !important;
-		    padding: 12px;
-		    border-radius: 12px;
-		    box-shadow: 0 0 12px rgba(60,110,255,0.3);
-		    transition: background 0.3s ease, box-shadow 0.3s ease;
-		}
-
-		.order-item-new {
-		    background: #1e2a40 !important;  /* slightly different tone */
-		    border-color: #3c6eff !important;
-		    box-shadow: 0 0 12px rgba(60,110,255,0.3);
-		    transition: background 0.3s ease, box-shadow 0.3s ease;
-		}
-
-        /* Scroll area */
-        #result {
-            max-height: 260px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        #past-orders {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        /* Table buttons */
         .table-btn {
             width: 90px;
             height: 90px;
@@ -103,94 +45,149 @@
             border-radius: 14px;
         }
 
-		/* --- Minimalistic Dark Scrollbar (WebKit & Chromium: Electron) --- */
-		::-webkit-scrollbar {
-		    width: 6px;
-		}
+        /* ================= ORDERS VIEW LAYOUT ================= */
 
-		::-webkit-scrollbar-track {
-		    background: transparent;
-		}
+        #view-orders {
+            height: calc(100vh - 40px);
+        }
 
-		::-webkit-scrollbar-thumb {
-		    background: rgba(255, 255, 255, 0.15);
-		    border-radius: 10px;
-		}
+        .orders-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
 
-		::-webkit-scrollbar-thumb:hover {
-		    background: rgba(255, 255, 255, 0.25);
-		}
+        .orders-header {
+            flex-shrink: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #222;
+        }
 
-		/* Optional: hide scrollbar unless scrolling */
-		.scroll-hide::-webkit-scrollbar {
-		    width: 0px;
-		}
-		.scroll-hide:hover::-webkit-scrollbar {
-		    width: 6px;
-		}
+        .orders-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 4px 90px;
+        }
 
-		/* Firefox support */
-		* {
-		    scrollbar-width: thin;
-		    scrollbar-color: rgba(255,255,255,0.15) transparent;
-		}
+        .orders-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 0 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(
+                to top,
+                rgba(17,17,17,0.95),
+                rgba(17,17,17,0.6),
+                transparent
+            );
+        }
 
-		/* Constrain the whole UI to 40% of screen width */
-		.app-container {
-		    max-width: 40vw;       /* never exceed 40% of screen */
-		    margin: 0 auto;        /* center horizontally */
-		    padding: 10px;
-		}
+        /* ================= PRODUCT CARDS ================= */
 
-		.app-container h2 {
-		    margin-bottom: 10px;
-		}
+        .order-item-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
 
-		/* For smaller screens, allow full width */
-		@media (max-width: 900px) {
-		    .app-container {
-		        max-width: 90vw;
-		    }
-		}
+        .order-qty {
+            font-size: 18px;
+            font-weight: 700;
+            margin-right: 6px;
+            color: #4da3ff;
+        }
 
+        .order-product {
+            font-weight: 600;
+        }
+
+        .order-mods {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .order-item-new {
+            background: #1e2a40;
+            border-color: #3c6eff;
+        }
+
+        .order-new-wrapper {
+            border: 1px solid #3c6eff;
+            background: #1e2a40;
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        /* ================= RECORD BUTTON ================= */
+
+        #recordBtn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #status {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 6px;
+        }
     </style>
 </head>
 
 <body>
-    <h1 class="text-center mb-4">Smart Order</h1>
-	
-	<div class="app-container">
-	    <!-- TABLE SELECT VIEW -->
-	    <div id="view-tables" class="container text-center">
-	        <h2 class="mb-3">Seleccione una Mesa</h2>
 
-	        <div id="table-list" class="d-flex flex-wrap justify-content-center gap-3"></div>
-	    </div>
+<!-- ================= TABLE SELECT VIEW (UNCHANGED) ================= -->
+<div id="view-tables" class="container text-center">
+    <h1 class="mb-4">Smart Order</h1>
+    <h2 class="mb-3">Seleccione una Mesa</h2>
+    <div id="table-list" class="d-flex flex-wrap justify-content-center gap-3"></div>
+</div>
 
-	    <!-- TABLE DETAIL VIEW -->
-	    <div id="view-orders" style="display:none;" class="container">
+<!-- ================= ORDERS VIEW ================= -->
+<div id="view-orders" style="display:none;">
 
-			<div class="d-flex align-items-center mb-3" style="gap:12px;">
-			    <button class="btn btn-outline-light" onclick="UI.showTables()">
-			        < Atrás
-			    </button>
+    <div class="content-column">
+        <div class="orders-layout">
 
-			    <h2 id="table-title" class="m-0 flex-grow-1"></h2>
-			</div>
+            <!-- HEADER -->
+            <div class="orders-header">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-light" onclick="UI.showTables()">←</button>
+                    <h2 id="table-title" class="m-0"></h2>
+                </div>
+            </div>
 
-	        <h3>Órdenes previas</h3>
-	        <div id="past-orders" class="mt-2 p-3 bg-dark rounded scroll-hide"></div>
+            <!-- SCROLLABLE ORDERS -->
+            <div id="past-orders" class="orders-scroll"></div>
 
-	        <h3 class="mt-4">Grabar nueva orden</h3>
-	        <button id="recordBtn" class="btn btn-primary w-100 py-3 fs-4"> Grabar</button>
-	        <div id="status" class="text-center mt-2"></div>
+            <!-- FIXED FOOTER -->
+            <div class="orders-footer">
+                <button id="recordBtn" class="btn btn-primary">
+                    <i class="bi bi-mic-fill"></i>
+                </button>
+                <div id="status"></div>
+            </div>
 
-	    </div>
-	
-	</div>
-    <script src="./ui.js"></script>
-    <script src="./renderer.js"></script>
+        </div>
+    </div>
 
+</div>
+
+<script src="./ui.js"></script>
+<script src="./renderer.js"></script>
 </body>
 </html>
 
